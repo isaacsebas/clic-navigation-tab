@@ -1,12 +1,35 @@
 import React, {useState} from "react";
 import { View, Text, StyleSheet, Image, TextInput, Pressable } from "react-native";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login(props) {
-    const {navigation} = props;
-    const [email, setEmail] = useState(null);
-    const [password, setPassword] = useState(null);
+    
 
     const login = () => {
+      
+    
+        const registrar = () => {
+            if (!email) {
+                Alert.alert("Correo Electronico es requerido");
+            } else if (!password) {
+                Alert.alert("Contraseña es requerida");
+            } else {
+                
+                const auth = getAuth();
+                signInWithEmailAndPassword(auth, email, password)
+                  .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    // ...
+                  })
+                  .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                  });
+                
+            }
+        }
+    
         
        navigation.navigate("Main");
 

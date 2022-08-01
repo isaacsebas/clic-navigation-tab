@@ -1,13 +1,39 @@
-import React, {useState} from "react";
-import { View, Text, StyleSheet, Image, TextInput, Pressable } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Image, TextInput, Pressable, Alert } from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { authentication } from "../config/firebase";
 
-export default function Register(props) {
-    const {navigate} = props.navigation;
+export default function Register({ navigation }) {
+    //Hookds de estado
+    //Funciones que nos permiten recuperar el valor de esa variable
+
     const [email, setEmail] = useState(null);
     const [password, setPassword] = useState(null);
-  
+
     const registrar = () => {
-        console.log(props);
+        if (!email) {
+            Alert.alert("Correo Electronico es requerido");
+        } else if (!password) {
+            Alert.alert("Contraseña es requerida");
+        } else {
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    Alert.alert("Usuario "+user.email+" Registrado correctamente");
+                    // ...
+                    navigation.navigate("Main");
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    // ..
+                    Alert.alert("Error" + errorCode + "Messange" + errorMessage);
+                    setEmail(null);
+                    setPassword(null);
+                });
+        }
+
     }
 
     return (
@@ -30,14 +56,21 @@ export default function Register(props) {
                 secureTextEntry={true}
                 value={password}
             />
+            <TextInput
+                style={styles.input}
+                placeholder="Confirmar Contraseña"
+                onChangeText={(value) => setPassword(value)}
+                secureTextEntry={true}
+                value={password}
+            />
             <Pressable
                 onPress={registrar}
                 style={styles.button}
             >
                 <Text style={styles.textButton}>Registrar</Text>
             </Pressable>
-            <Text onPress={() => navigate("Login")} 
-            style={styles.link}>¿Ya tienes una cuenta?</Text>
+            <Text onPress={() => navigation.navigate("Login")}
+                style={styles.link}>¿Ya tienes una cuenta?</Text>
         </View>
     );
 
@@ -56,7 +89,7 @@ const styles = StyleSheet.create({
         marginTop: 100,
         marginBottom: 30,
     },
-    title:{
+    title: {
         marginBottom: 50,
     },
     input: {
@@ -84,8 +117,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     link: {
-        marginTop:20,
-        color:"#02CCFF",
+        marginTop: 20,
+        color: "#02CCFF",
         fontWeight: "bold",
     }
 });
